@@ -1,102 +1,194 @@
-
 import turtle as tt
 from random import randint as r
 from itertools import cycle
+from tetro_base import Tetromino
 
-class Tetromino:
-    shapes = " I O J L S Z T".split()
-
-    def __init__(self, size=20):
-        self.size = size
-
-    def draw(self, x, y, color="green"):
-        tt.pu()
-        tt.goto(x, y)
-        tt.fillcolor(color)
-
-        tt.pd()
-        tt.begin_fill()
-        for _ in range(4):
-            tt.fd(self.size)
-            tt.right(90)
-        tt.end_fill()
-        tt.update()
+LJSZT_Offsets = ((0, 1, 0, 0),
+                 (1, 0, 0, 0),
+                 (0, 0, 0, -1),
+                 (0, 0, -1, 0))
 
 
 class O(Tetromino):
-    def draw(self, x, y, color="green"):
-        for i in range(2):
-            for j in range(2):
-                super().draw(x, y, color="yellow")
+    rot_offsets = ((1, 1, -1, 0), ) * 4
+
+    def draw(self, x, y, color="yellow"):
+        self.start = (x, y)
+        self.cells.clear()
+        self.pen.clear()
+        for _ in range(2):
+            for _ in range(2):
+                super().draw(x, y, color)
                 x += self.size
             y -= self.size
             x -= self.size * 2
+        self.update_bounds()
 
-
-class Z(Tetromino):
-    def draw(self, x, y, color="green"):
-        for i in range(2):
-            for j in range(2):
-                super().draw(x, y, color="red")
-                x += self.size
-            y -= self.size
-            x -= self.size
+    def update_bounds(self):
+        x, y = self.start
+        s = self.size
+        self.rot_bounds = x-s, y-s*3, x+s*3, y
+        self.rot_center = x+s, y-s
 
 
 class I(Tetromino):
-    def draw(self, x, y, color="green"):
-        for i in range(1):
-            for j in range(4):
-                super().draw(x, y, color="#ADD8E6")
+    rot_offsets = (0, 2, 0, -1), (2, 0, -1, 0), (0, 1, 0, -2), (1, 0, -2, 0)
+
+    def draw(self, x, y, color="lightblue"):
+        self.start = (x, y)
+        self.cells.clear()
+        self.pen.clear()
+        for _ in range(4):
+            super().draw(x, y, color)
+            x += self.size
+        self.update_bounds()
+
+    def update_bounds(self):
+        x, y = self.start
+        s = self.size
+        self.rot_bounds = xl, yl, xh, yh = x, y-s*3, x+s*4, y+s
+        self.rot_center = (xl+xh)/2, (yl+yh)/2
+
+
+class Z(Tetromino):
+    rot_offsets = LJSZT_Offsets
+
+    def draw(self, x, y, color="red"):
+        self.start = (x, y)
+        self.cells.clear()
+        self.pen.clear()
+        for _ in range(2):
+            for _ in range(2):
+                super().draw(x, y, color)
                 x += self.size
-            y += self.size
+            y -= self.size
             x -= self.size
+        self.update_bounds()
+
+    def update_bounds(self):
+        x, y = self.start
+        s = self.size
+        self.rot_bounds = xl, yl, xh, yh = x, y-s*3, x+s*3, y
+        self.rot_center = (xl+xh)/2, (yl+yh)/2
 
 
 class S(Tetromino):
+    rot_offsets = LJSZT_Offsets
+
     def draw(self, x, y, color="green"):
-        for i in range(2):
-            for j in range(2):
-                super().draw(x, y, color="green")
-                x -= self.size
+        self.start = (x, y)
+        self.cells.clear()
+        self.pen.clear()
+        for _ in range(2):
+            for _ in range(2):
+                super().draw(x, y, color)
+                x += self.size
             y -= self.size
-            x += self.size
+            x -= self.size * 3
+        self.update_bounds()
+
+    def update_bounds(self):
+        x, y = self.start
+        s = self.size
+        self.rot_bounds = xl, yl, xh, yh = x-s, y-s*3, x+s*2, y
+        self.rot_center = (xl+xh)/2, (yl+yh)/2
 
 
 class T(Tetromino):
-    def draw(self, x, y, color="green"):
-        super().draw(x, y, color="#F535AA")
-        super().draw(x + self.size, y, color="#F535AA")
-        super().draw(x + 2 * self.size, y, color="#F535AA")
-        super().draw(x + self.size, y - self.size, color="#F535AA")
+    rot_offsets = LJSZT_Offsets
+
+    def draw(self, x, y, color="purple"):
+        self.start = (x, y)
+        self.cells.clear()
+        self.pen.clear()
+        super().draw(x, y, color)
+        x -= self.size
+        y -= self.size
+        for _ in range(3):
+            super().draw(x, y, color)
+            x += self.size
+        self.update_bounds()
+
+    def update_bounds(self):
+        x, y = self.start
+        s = self.size
+        self.rot_bounds = xl, yl, xh, yh = x-s, y-s*3, x+s*2, y
+        self.rot_center = (xl+xh)/2, (yl+yh)/2
 
 
 class L(Tetromino):
-    def draw(self, x, y, color="green"):
-        super().draw(x, y, color="orange")
-        super().draw(x, y - self.size, color="orange")
-        super().draw(x, y - 2 * self.size, color="orange")
-        super().draw(x + self.size, y - 2 * self.size, color="orange")
+    rot_offsets = LJSZT_Offsets
+
+    def draw(self, x, y, color="orange"):
+        self.start = (x, y)
+        self.cells.clear()
+        self.pen.clear()
+        super().draw(x, y, color)
+        x -= self.size * 2
+        y -= self.size
+        for _ in range(3):
+            super().draw(x, y, color)
+            x += self.size
+        self.update_bounds()
+
+    def update_bounds(self):
+        x, y = self.start
+        s = self.size
+        self.rot_bounds = xl, yl, xh, yh = x-s*2, y-s*3, x+s, y
+        self.rot_center = (xl + xh)/2, (yl + yh)/2
 
 
 class J(Tetromino):
-    def draw(self, x, y, color="green"):
-        super().draw(x, y, color="#00008B")
-        super().draw(x, y - self.size, color="#00008B")
-        super().draw(x, y - 2 * self.size, color="#00008B")
-        super().draw(x - self.size, y - 2 * self.size, color="#00008B")
+    rot_offsets = LJSZT_Offsets
+
+    def draw(self, x, y, color="blue"):
+        self.start = (x, y)
+        self.cells.clear()
+        self.pen.clear()
+        super().draw(x, y, color)
+        y -= self.size
+        for _ in range(3):
+            super().draw(x, y, color)
+            x += self.size
+        self.update_bounds()
+
+    def update_bounds(self):
+        x, y = self.start
+        s = self.size
+        self.rot_bounds = xl, yl, xh, yh = x, y-s*3, x+s*3, y
+        self.rot_center = (xl + xh)/2, (yl + yh)/2
 
 
-def main(x, y):
-    tetro = next(shapes)()
-    tetro.draw(x, y, f"#{r(0, 255):02x}{r(0, 255):02x}{r(0, 255):02x}")
+def change_tetro(x, y):
+    global shapes, tetro
+    if tetro:
+        tetro.pen.clear()
+    tetro = next(shapes)(100)
+    tetro.draw(-tetro.size, tetro.size, f"#{r(0, 255):02x}{r(0, 255):02x}{r(0, 255):02x}")
+    tetro.draw_bounds()
+    print(*tetro.cells, sep="\n")
+    print()
+    tt.update()
+
+
+def move_tetro(key):
+    global tetro
+    key = "rotate" if key == "space" else key
+    getattr(tetro, key.lower())()
+    tetro.draw_bounds()
 
 
 if __name__ == '__main__':
     tt.tracer(100)
+    tt.ht()
 
-    shapes = cycle([O, Z, I, S, T, L, J])  # No need for `global` here
+    tetro = Tetromino()
+    shapes = cycle((O, Z, S, J, L, T, I))
+
     screen = tt.getscreen()
-    screen.onclick(main)
+    screen.onclick(change_tetro)
+    for move in "Left Right Up Down space".split():
+        screen.onkey(lambda k=move: move_tetro(k), move)
+    screen.listen()
 
     tt.mainloop()
