@@ -1,4 +1,4 @@
-# 🎮 TETRIS-CX
+# 🎮 TETRIS
 
 A modern implementation of **Tetris** built with Python, using **Turtle Graphics** for rendering and **Tkinter** for the GUI frontend.  
 This project demonstrates modular architecture with separate backend and frontend layers.
