@@ -1,7 +1,7 @@
 import turtle as tt
 from itertools import cycle
-from tetris.sys230.tetrominoes import I, J, L, S, Z, O, T
-from tetris.sys230.tetro_base import Tetromino, Cell
+from tetris_shape import I, J, L, S, Z, O, T
+from tetris_Movement import Tetromino, Cell
 
 SHAPE_CLASSES = cycle((I, J, L, S, Z, O, T))
 
